@@ -6,14 +6,15 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private UserDetailsServiceImpl userDetailsService;
+    private UserDetailsService userDetailsService;
 
-    public SecurityConfiguration(UserDetailsServiceImpl userDetailsService){
+    public SecurityConfiguration(UserDetailsService userDetailsService){
         this.userDetailsService = userDetailsService;
     }
 
@@ -23,15 +24,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
            .authorizeHttpRequests()
                 .requestMatchers(EndpointRequest.to("info")).permitAll()
                 .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ADMIN")
-                .antMatchers("/actuator/").hasRole("ACTUATOR")
+                .antMatchers("/actuator/").hasRole("ADMIN")
                 .antMatchers("/").permitAll()
                 .antMatchers("/link/submit").hasRole("USER")
                 .antMatchers("/h2-console/**").permitAll()
            .and()
-           .formLogin()
-                .and()
-                .csrf().disable()
-                .headers().frameOptions().disable();
+                .formLogin()
+                .loginPage("/login")//.permitAll()
+                .usernameParameter("email");
+//           .and()
+//                .csrf().disable()
+//                .headers().frameOptions().disable();
     }
 
 
